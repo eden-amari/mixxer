@@ -80,6 +80,13 @@ export default function Home() {
           </RightPanel>
         </div>
         
+         <section style={{ marginTop: "40px", padding: "20px", color: "white" }}>
+          <h2>About This Project</h2>
+          <p>
+            Mixxer is a music-focused web application designed to improve the
+            listening experience through organization, sharing, and discovery.
+          </p>
+        </section>
         
       </div>
     </BrowserRouter>
