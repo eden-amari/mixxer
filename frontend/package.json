@@ -2,6 +2,7 @@
   "name": "mixxer-frontend",
   "version": "0.1.0",
   "private": true,
+  "main": "./src/app/homepages/donnaPage/page.tsx",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,8 +20,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
@@ -32,5 +33,10 @@
   },
   "resolutions": {
     "@types/react": "16.9.0"
-  }
+  },
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/page.tsx": "(${dirname})/page.${extname}",
+    "**/app/**/layout.tsx": "(${dirname})/layout.${extname}",
+    "**/app/**/index.tsx": "(${dirname})/index.${extname}"
+}
 }
