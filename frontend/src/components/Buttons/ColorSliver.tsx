@@ -1,13 +1,10 @@
 type colorSliverProps = {
-  className?: string;
+	className?: string;
 };
 export function ColorSliver({ className }: colorSliverProps) {
-  const classes = ["colorSliver", className].filter(Boolean).join(" ");
+	const classes = ["colorSliver", className].filter(Boolean).join(" ");
 
-  return (
-    <div className={classes}>
-    </div>
-  );
+	return <div className={classes}></div>;
 }
 
 export default ColorSliver;
