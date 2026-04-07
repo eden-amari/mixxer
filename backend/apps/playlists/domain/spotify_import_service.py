@@ -96,12 +96,42 @@ class SpotifyImportService:
                 # --------------------
                 # STORE (dedup-safe)
                 # --------------------
-                track_obj, created = TrackService.create_safe(enriched)
+                spotify_id = enriched.get("spotify_id")
+                title = enriched.get("title")
+                artist = enriched.get("artist")
+                
+                track_obj = None
+                
+                # Try to find existing track by spotify_id
+                if spotify_id:
+                    track_obj = TrackService.get_by_spotify_id(spotify_id)
+                
+                # If not found by spotify_id, try by unique_key
+                if not track_obj and title and artist:
+                    from apps.imports.domain.utils import generate_track_key
+                    unique_key = generate_track_key({"title": title, "artist": artist})
+                    try:
+                        track_obj = TrackService.get_by_unique_key(unique_key)
+                    except:
+                        pass
 
-                if created:
-                    stats["success"] += 1
+                if track_obj:
+                    # Track exists — check if enriched
+                    if track_obj.is_enriched:
+                        # ✅ Already enriched — skip, no DB write
+                        stats["duplicates"] += 1
+                    else:
+                        # ⚡ Exists but incomplete — fill in missing fields only
+                        TrackService._update_enrichment(track_obj, enriched)
+                        stats["success"] += 1
                 else:
-                    stats["duplicates"] += 1
+                    # Brand new track — create safely
+                    track_obj, created = TrackService.create_safe(enriched)
+
+                    if created:
+                        stats["success"] += 1
+                    else:
+                        stats["duplicates"] += 1
 
                 # --------------------
                 # ATTACH
