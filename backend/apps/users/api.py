@@ -46,10 +46,10 @@ def failure(e):
 # GET CURRENT USER
 # =========================
 
-@router.get("/me", auth=JWTAuth())  # Apply auth here
+@router.get("/me", auth=JWTAuth())
 def get_me(request):
     try:
-        user = request.auth  # Use request.auth instead of request.user
+        user = request.auth
         logger.info(f"📝 /me endpoint - User: {user}")
 
         return success({
@@ -69,10 +69,10 @@ def get_me(request):
 # UPDATE USER PROFILE
 # =========================
 
-@router.patch("/me", auth=JWTAuth())  # Apply auth here
+@router.patch("/me", auth=JWTAuth())
 def update_me(request, data: UpdateUserSchema):
     try:
-        user = request.auth  # Use request.auth instead of request.user
+        user = request.auth
         user = update_user(user, data)
 
         return success({
@@ -95,7 +95,7 @@ class LogoutSchema(Schema):
     refresh: str
 
 
-@router.post("/logout", auth=JWTAuth())  # Apply auth here
+@router.post("/logout", auth=JWTAuth())
 def logout(request, data: LogoutSchema):
     try:
         token = RefreshToken(data.refresh)
@@ -181,11 +181,11 @@ def create_test_token(request):
                 "name": "Test User"
             }
         )
-        
+
         logger.info(f"{'Created' if created else 'Found'} test user: {user.email}")
-        
+
         refresh = RefreshToken.for_user(user)
-        
+
         return success({
             "access": str(refresh.access_token),
             "refresh": str(refresh),
@@ -199,7 +199,8 @@ def create_test_token(request):
     except Exception as e:
         logger.error(f"Test token error: {str(e)}")
         return failure(e)
-    
+
+
 # =========================
 # LOGIN WITH REMEMBER ME
 # =========================
@@ -214,16 +215,16 @@ class LoginSchema(Schema):
 def login_remember_me(request, data: LoginSchema):
     try:
         user = authenticate(username=data.email, password=data.password)
-        
+
         if not user:
             return failure(Exception("Invalid credentials"))
-        
+
         refresh = RefreshToken.for_user(user)
-        
+
         # If remember_me is True, extend the refresh token lifetime
         if data.remember_me:
             refresh.set_exp(lifetime=timedelta(days=30))  # 30 days instead of 7
-        
+
         return success({
             'access': str(refresh.access_token),
             'refresh': str(refresh),

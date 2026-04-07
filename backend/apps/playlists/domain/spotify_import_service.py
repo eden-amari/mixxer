@@ -94,7 +94,7 @@ class SpotifyImportService:
                     enriched = resolved
 
                 # --------------------
-                # DEDUPE WITH ENRICHMENT CHECK
+                # STORE (dedup-safe)
                 # --------------------
                 spotify_id = enriched.get("spotify_id")
                 title = enriched.get("title")
