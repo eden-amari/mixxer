@@ -118,4 +118,30 @@
   overflow: hidden;
 }
 
+.leftDashBig {
+  background-color: #2e2f33;
+  width: 40vw;
+  height: 100vh;
+}
+
+.leftDashSmall {
+  background-color: #000;
+  width: 2.5vw;
+  height: 100vh;
+}
+
+.leftDashSmallPurple {
+  background-color: #99acff;
+  width: .5vw;
+  height: 100vh;
+}
+
+.rightDash {
+  background-color: #fff;
+  width: 55vw;
+  height: 100vh;
+  margin: auto;
+  overflow: hidden;
+}
+
 /*# sourceMappingURL=mixxer_frontend_src_components_MainBlocks_Panels_css_0w3-wzy._.single.css.map*/

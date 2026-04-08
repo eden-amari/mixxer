@@ -38,21 +38,21 @@ export default function Home() {
 
       <div className="defaultDiv" style={{ backgroundColor: "black" }}>
         <a href="/" className="mxrLogo"><Image src={mxrLogo} alt="Mixxer logo" title="Mixxer Logo" /></a>
-        <div className="BigPanel flexColumn" style={{ position: "absolute" }}>
+        <div className="BigPanel flexColumn" style={{ position: "absolute", border: "5px solid #99acff", backgroundColor: "#2e2f33", alignItems: "center", justifyContent: "center", gap: "3vh", padding: "5vh", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
 
           {/* sign in title */}
           <div className="flexColumn" style={{ alignItems: "center", justifyContent: "center", marginTop: "-40px" }}>
             <h2 className="h2" style={{ fontSize: "40px" }}>Sign in with...</h2>
             {/* <div className="hr" style={{marginTop: "-25px", border: "1.5px solid #99acff", width: "80%"}}></div> */}
-          </div>
+
 
           {/* icons */}
-          <div className="flexRow" style={{ marginTop: "-25px", padding: "20px", alignItems: "center", justifyContent: "center" }}>
+          <div className="flexRow" style={{ marginTop: "-20px", padding: "20px", alignItems: "center", justifyContent: "center" }}>
             <div className="circularContainer"><Image className="smallIcon" src={spotifyLogo} alt="black Spotify logo" title="Spotify Logo" style={{ width: "1.75vw", height: "1.75vw" }} /></div>
             <div className="circularContainer"><Image className="smallIcon " src={googleLogo} alt="black Google logo" title="Google Logo" style={{ width: "1.75vw", height: "1.75vw" }} /></div>
           </div>
 
-          <div className="flexRow" style={{ marginBottom: "2vh" }}>
+          <div className="flexRow" style={{ marginBottom: "0vh" }}>
             <hr style={{ width: "5vw", height: "1px", border: "1px solid #9396a7", marginRight: "1vw" }}></hr>
             <p className="p" style={{ color: "#9396a7", margin: "0%" }}>Or Sign In With</p>
             <hr style={{ width: "5vw", height: "1px", border: "1px solid #9396a7", marginLeft: "1vw" }}></hr>
@@ -67,13 +67,10 @@ export default function Home() {
             <SubmitButton className="loginSignupButton p" style={{ backgroundColor: "#99acff", border: "5px solid #6b7bd0", marginBottom: "1vh" }}></SubmitButton>
           </form>
 
-          
+
           <a href="/account/signUp" className="p" style={{ color: "#9396a7" }}>Need to create an account?</a>
 
-
-
-
-
+        </div>
 
 
 

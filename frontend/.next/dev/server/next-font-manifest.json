@@ -4,6 +4,10 @@
       "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
       "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
     ],
+    "[project]/mixxer/frontend/src/app/account/dashboard/page": [
+      "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
+      "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
+    ],
     "[project]/mixxer/frontend/src/app/account/signIn/page": [
       "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
       "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
@@ -13,22 +17,6 @@
       "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
     ],
     "[project]/mixxer/frontend/src/app/homepages/madonnaPage/page": [
-      "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
-      "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
-    ],
-    "[project]/mixxer/frontend/src/app/homepages/mcrPage/page": [
-      "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
-      "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
-    ],
-    "[project]/mixxer/frontend/src/app/homepages/newJeansPage/page": [
-      "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
-      "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
-    ],
-    "[project]/mixxer/frontend/src/app/importPlaylist/page": [
-      "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
-      "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
-    ],
-    "[project]/mixxer/frontend/src/app/organizePlaylist/export/page": [
       "static/media/caa3a2e1cccd8315-s.p.16t1db8_9y2o~.woff2",
       "static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2"
     ],
