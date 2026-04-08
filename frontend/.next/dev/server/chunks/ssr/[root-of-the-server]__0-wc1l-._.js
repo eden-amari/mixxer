@@ -7,11 +7,12 @@ module.exports = mod;
 }),
 "[project]/mixxer/frontend/src/app/account/signIn/page.tsx [app-rsc] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
+const e = new Error("Could not parse module '[project]/mixxer/frontend/src/app/account/signIn/page.tsx'\n\nExpected '</', got 'ident'");
+e.code = 'MODULE_UNPARSABLE';
+throw e;
 }),
 "[project]/mixxer/frontend/src/app/account/signIn/page.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
 
 __turbopack_context__.n(__turbopack_context__.i("[project]/mixxer/frontend/src/app/account/signIn/page.tsx [app-rsc] (ecmascript)"));
 }),
 ];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__0-wc1l-._.js.map

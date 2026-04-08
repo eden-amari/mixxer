@@ -37,6 +37,7 @@ export default function Home() {
 				<a href="/"><Image className="mxrLogo" src={mxrLogo} alt="Mixxer Logo" title="Mixxer Logo" /></a>
 				<div className="flex flex-row">
 
+
 					<LeftPanel className="leftDonnaBig ">
 						<br></br><br></br><br></br>
 						<h1 className="h1">
@@ -49,7 +50,7 @@ export default function Home() {
 							Enhance your listening experience by organizing your playlist--sort by BPM, mood, and genre to create seamless transitions.
 						</p>
 
-						<div className="buttonHolder">
+						<div className="buttonHolder" style={{ marginTop: "2vh" }}>
 							<ColorSliver className="donnaColorSliver" />
 							<HomeImportButton />
 						</div>
@@ -64,7 +65,7 @@ export default function Home() {
 
 
 						<hr className="donnaNavHR"></hr>
-						<ReactPlayer className="donnaVideo" src="/videos/donna1999.mp4" height="100vh" width="100vw" controls={false} autoPlay={true} loop={true} muted={true} />
+						<ReactPlayer className="donnaVideo" src="/videos/donna1999.mp4" height="100vh" width="auto" controls={false} autoPlay={true} loop={true} muted={true} />
 						<SongCard className="donnaCard align-items:center z-index:1">
 							<Image className="photocard " src={donnaAlbum} alt="Bad Girls, Donna Summer Album Cover" title="Bad Girls - Donna Summer Album Cover" />
 							<div className="songTitle" style={{ backgroundColor: "#ffc9e8", color: "black" }}>HOT STUFF</div>

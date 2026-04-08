@@ -42,7 +42,7 @@ function Home() {
 						seamless transitions.
 					</p>
 
-					<div className="buttonHolder">
+					<div className="buttonHolder" style={{ marginTop: "2vh" }}>
 						<ColorSliver className="mcrColorSliver" />
 						<HomeImportButton />
 					</div>

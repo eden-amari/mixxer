@@ -662,12 +662,21 @@ function Home() {
                             },
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                    name: "userAndEmail",
-                                    placeholder: "Username/Email Address",
+                                    name: "username",
+                                    placeholder: "Username",
                                     className: "loginSignupButton p"
                                 }, void 0, false, {
                                     fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
                                     lineNumber: 67,
+                                    columnNumber: 25
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    name: "email",
+                                    placeholder: "Email",
+                                    className: "loginSignupButton p"
+                                }, void 0, false, {
+                                    fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
+                                    lineNumber: 68,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -676,7 +685,7 @@ function Home() {
                                     className: "loginSignupButton p"
                                 }, void 0, false, {
                                     fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
-                                    lineNumber: 68,
+                                    lineNumber: 69,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -685,7 +694,7 @@ function Home() {
                                     className: "loginSignupButton p"
                                 }, void 0, false, {
                                     fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
-                                    lineNumber: 69,
+                                    lineNumber: 70,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$mixxer$2f$frontend$2f$src$2f$components$2f$Buttons$2f$Buttons$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SubmitButton"], {
@@ -697,7 +706,7 @@ function Home() {
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
-                                    lineNumber: 71,
+                                    lineNumber: 72,
                                     columnNumber: 25
                                 }, this)
                             ]
@@ -715,7 +724,7 @@ function Home() {
                             children: "Already have an account?"
                         }, void 0, false, {
                             fileName: "[project]/mixxer/frontend/src/app/account/signUp/page.tsx",
-                            lineNumber: 73,
+                            lineNumber: 74,
                             columnNumber: 21
                         }, this)
                     ]

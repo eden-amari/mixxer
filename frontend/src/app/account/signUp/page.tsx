@@ -12,7 +12,7 @@ import ReactDOM from 'react-dom';
 // import {RightPanel} from "@/components/MainBlocks/Panels";
 import { SubmitButton } from "@/components/Buttons/Buttons";
 import "@/components/Buttons/ColorSliver";
-import "@/components/Navbar/Navbar";    
+import "@/components/Navbar/Navbar";
 import "@/components/SongCard/SongCard";
 
 
@@ -64,7 +64,8 @@ export default function Home() {
 
                     {/* sign in form */}
                     <form style={{ alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "column" }}>
-                        <input name="userAndEmail" placeholder="Username/Email Address" className="loginSignupButton p" />
+                        <input name="username" placeholder="Username" className="loginSignupButton p" />
+                        <input name="email" placeholder="Email" className="loginSignupButton p" />
                         <input name="password" placeholder="Password" className="loginSignupButton p" />
                         <input name="confirmPassword" placeholder="Confirm Password" className="loginSignupButton p" />
 
