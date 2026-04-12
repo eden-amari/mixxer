@@ -82,15 +82,16 @@ function HomeImportButton() {
 }
 _c = HomeImportButton;
 const __TURBOPACK__default__export__ = HomeImportButton;
-function SubmitButton({ className, onClick, disabled, style }) {
+function SubmitButton({ className, onClick, disabled, style, link }) {
     const classes = [
         "SubmitButton",
         className,
-        style
+        style,
+        link
     ].filter(Boolean).join(" ");
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-            href: "/importPlaylist",
+            href: link,
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 type: "submit",
                 className: classes,
@@ -100,17 +101,17 @@ function SubmitButton({ className, onClick, disabled, style }) {
                 children: "Submit"
             }, void 0, false, {
                 fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-                lineNumber: 38,
+                lineNumber: 40,
                 columnNumber: 5
             }, this)
         }, void 0, false, {
             fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-            lineNumber: 37,
+            lineNumber: 39,
             columnNumber: 4
         }, this)
     }, void 0, false, {
         fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-        lineNumber: 35,
+        lineNumber: 37,
         columnNumber: 3
     }, this);
 }
@@ -144,7 +145,7 @@ function Checkbox() {
                         }
                     }, void 0, false, {
                         fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-                        lineNumber: 66,
+                        lineNumber: 68,
                         columnNumber: 5
                     }, this),
                     " ",
@@ -152,7 +153,7 @@ function Checkbox() {
                 ]
             }, void 0, true, {
                 fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-                lineNumber: 65,
+                lineNumber: 67,
                 columnNumber: 4
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -164,13 +165,13 @@ function Checkbox() {
                 children: "Forgot Password?"
             }, void 0, false, {
                 fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-                lineNumber: 77,
+                lineNumber: 79,
                 columnNumber: 4
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/mixxer/frontend/src/components/Buttons/Buttons.tsx",
-        lineNumber: 56,
+        lineNumber: 58,
         columnNumber: 3
     }, this);
 } // ---------------------------------------

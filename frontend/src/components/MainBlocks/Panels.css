@@ -123,6 +123,33 @@
 
 /* --------------------------------------------------- */
 
+.leftDashBig {
+	width: 40vw;
+	height: 100vh;
+	background-color: #2e2f33;
+}
+
+.leftDashSmall {
+	width: 2.5vw;
+	height: 100vh;
+	background-color: #000000;
+}
+
+.leftDashSmallPurple {
+	width: 0.5vw;
+	height: 100vh;
+	background-color: #99acff;
+}
+
+.rightDash {
+	/* align-items: center; */
+	width: 55vw;
+	height: 100vh;
+	background-color: white;
+	margin: auto;
+	overflow: hidden;
+}
+
 /* const lightModeColors = {
   headings: "#000000",
   bubbleBackground: "#2e2f33",
@@ -132,7 +159,7 @@
   fullBackground: "#2e2f33",
   accent1: "#99acff",
   accent2: "#6b7bd0",
-  
+
 };
 
 const darkModeColors = {
@@ -144,5 +171,5 @@ const darkModeColors = {
   fullBackground: "#000000",
   accent1: "#99acff",
   accent2: "#6b7bd0",
-  
+
 }; */
