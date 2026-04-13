@@ -1,0 +1,154 @@
+.mxrLogo {
+	width: 7vw;
+	height: auto;
+	position: absolute;
+	left: 10px;
+	top: 4px;
+}
+
+.homeImportButton {
+	width: 17vw;
+	height: 6vh;
+	margin-top: 2vh;
+	border-radius: 0 10px 10px 0;
+	background-color: white;
+	color: black;
+}
+
+.buttonHolder {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+.donnaColorSliver {
+	background-color: #ffc9e8;
+	width: 1vw;
+	height: 6.07vh;
+	margin-top: 2vh;
+}
+
+.mcrColorSliver {
+	background-color: #194355;
+	width: 1vw;
+	height: 6.07vh;
+	margin-top: 2vh;
+}
+
+.madonnaColorSliver {
+	background-color: black;
+	width: 1vw;
+	height: 6.07vh;
+	margin-top: 2vh;
+}
+
+.newJeansColorSliver {
+	background-color: #bb9ae0;
+	width: 1vw;
+	height: 6.07vh;
+	margin-top: 2vh;
+}
+
+/* Carousel order: Donna -> Madonna -> New Jeans -> MCR -> Donna */
+.carouselButtons {
+	z-index: 1;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin-top: -30vh;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.circularButtonLeft {
+	width: 4vh;
+	height: 4vh;
+	border-radius: 50%;
+	border: black;
+	background-color: rgb(255, 255, 255);
+	color: black;
+	margin-right: 10.75vw;
+}
+
+.circularButtonRight {
+	width: 4vh;
+	height: 4vh;
+	border-radius: 50%;
+	border: black;
+	color: black;
+	background-color: rgb(255, 255, 255);
+
+	margin-left: 10.75vw;
+}
+
+.donnaCircle:hover {
+	background-color: #0a2f5e;
+	color: white;
+	border: 4px solid white;
+}
+
+.madonnaCircle:hover {
+	background-color: black;
+	color: white;
+	border: 4px solid white;
+}
+
+.newJeansCircle:hover {
+	background-color: black;
+	color: white;
+	border: 4px solid white;
+}
+
+.mcrCircle:hover {
+	background-color: black;
+	color: white;
+	border: 4px solid white;
+}
+
+.lightModeButton {
+	width: 17vw;
+	height: 6vh;
+	border-radius: 10px 0 0 10px;
+	background-color: white;
+	color: black;
+}
+
+/* ---------------------------- */
+
+.loginSignupButton {
+	width: 22vw;
+	height: 6vh;
+	border-radius: 20px;
+	background-color: white;
+	color: black;
+	/* text-align: center; */
+	align-items: center;
+	justify-content: center;
+	display: flex;
+}
+
+/* const lightModeColors = {
+  headings: "#000000",
+  bubbleBackground: "#2e2f33",
+  bubbleText: "#ffffff",
+  grayText: "#9396a7",
+  boxBackground: "#ffffff",
+  fullBackground: "#2e2f33",
+  accent1: "#99acff",
+  accent2: "#6b7bd0",
+
+};
+
+const darkModeColors = {
+  headings: "#ffffff",
+  bubbleBackground: "#ffffff",
+  bubbleText: "#000000",
+  grayText: "#9396a7",
+  boxBackground: "#2e2f33",
+  fullBackground: "#000000",
+  accent1: "#99acff",
+  accent2: "#6b7bd0",
+
+}; */

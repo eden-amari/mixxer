@@ -1,0 +1,1 @@
+Classes for the text styles are in the globals.css file.

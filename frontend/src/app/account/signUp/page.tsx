@@ -1,0 +1,123 @@
+"use client";
+// Standard Imports ------------------------------------------------------
+import Image from "next/image";
+import { useState, useEffect } from 'react';
+import { BrowserRouter } from "react-router-dom";
+import ReactDOM from 'react-dom';
+
+
+// Component Imports ------------------------------------------------------
+// import HomeImportButton from "@/components/Buttons/Buttons";
+// // import {LightModeButton, DarkModeButton} from "@/components/Buttons/Buttons";
+// import {RightPanel} from "@/components/MainBlocks/Panels";
+import { SubmitButton } from "@/components/Buttons/Buttons";
+import "@/components/Buttons/ColorSliver";
+import "@/components/Navbar/Navbar";
+import "@/components/SongCard/SongCard";
+
+
+// CSS Imports ------------------------------------------------------
+import "@/components/Buttons/Buttons.css";
+import "@/components/MainBlocks/Decor.css";
+import "@/components/MainBlocks/Panels.css";
+import "@/components/Navbar/Navbar.css";
+import "@/components/SongCard/SongCard.css";
+
+
+
+// Asset Imports Imports ------------------------------------------------------
+import "@/app/globals.css";
+import googleLogo from "@/assets/images/googleLogo.png";
+import mxrLogo from "@/assets/images/mxr.png";
+import spotifyLogo from "@/assets/images/spotifyLogo.png";
+// import { ColorSliver } from "@/components/Buttons/ColorSliver";
+
+
+
+export default function Home() {
+    return (
+        <BrowserRouter>
+
+
+            <div className="defaultDiv" style={{ backgroundColor: "black" }}>
+                <a href="/" className="mxrLogo"><Image src={mxrLogo} alt="Mixxer logo" title="Mixxer Logo" /></a>
+
+                <div className="BigPanel flexColumn">
+
+                    {/* sign up title */}
+                    <div className="flexColumn" style={{ alignItems: "center", justifyContent: "center", marginTop: "-40px" }}>
+                        <h2 className="h2" style={{ fontSize: "40px" }}>Sign up with...</h2>
+                        {/* <div className="hr" style={{marginTop: "-25px", border: "1.5px solid #99acff", width: "80%"}}></div> */}
+                    </div>
+
+                    {/* icons */}
+                    <div className="flexRow" style={{ marginTop: "-25px", padding: "20px", alignItems: "center", justifyContent: "center" }}>
+                        <div className="circularContainer"><Image className="smallIcon" src={spotifyLogo} alt="black Spotify logo" title="Spotify Logo" style={{ width: "1.75vw", height: "1.75vw" }} /></div>
+                        <div className="circularContainer"><Image className="smallIcon " src={googleLogo} alt="black Google logo" title="Google Logo" style={{ width: "1.75vw", height: "1.75vw" }} /></div>
+                    </div>
+
+                    <div className="flexRow" style={{ marginBottom: "2vh" }}>
+                        <hr style={{ width: "5vw", height: "1px", border: "1px solid #9396a7", marginRight: "1vw" }}></hr>
+                        <p className="p" style={{ color: "#9396a7", margin: "0%" }}>Or Sign Up With</p>
+                        <hr style={{ width: "5vw", height: "1px", border: "1px solid #9396a7", marginLeft: "1vw" }}></hr>
+                    </div>
+
+                    {/* sign in form */}
+                    <form style={{ alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "column" }}>
+                        <input name="username" placeholder="Username" className="loginSignupButton p" />
+                        <input name="email" placeholder="Email" className="loginSignupButton p" />
+                        <input name="password" placeholder="Password" className="loginSignupButton p" />
+                        <input name="confirmPassword" placeholder="Confirm Password" className="loginSignupButton p" />
+
+                        <SubmitButton className="loginSignupButton p" style={{ backgroundColor: "#99acff", border: "5px solid #6b7bd0", marginBottom: "1vh" }}></SubmitButton>
+                    </form>
+                    <a href="/account/signIn" className="p" style={{ color: "#9396a7" }}>Already have an account?</a>
+
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+        </BrowserRouter>
+    );
+}
+
+
+
+
+/* const lightModeColors = {
+  headings: "#000000",
+  bubbleBackground: "#2e2f33",
+  bubbleText: "#ffffff",
+  grayText: "#9396a7",
+  boxBackground: "#ffffff",
+  fullBackground: "#2e2f33",
+  accent1: "#99acff",
+  accent2: "#6b7bd0",
+
+};
+
+const darkModeColors = {
+  headings: "#ffffff",
+  bubbleBackground: "#ffffff",
+  bubbleText: "#000000",
+  grayText: "#9396a7",
+  boxBackground: "#2e2f33",
+  fullBackground: "#000000",
+  accent1: "#99acff",
+  accent2: "#6b7bd0",
+
+}; */
