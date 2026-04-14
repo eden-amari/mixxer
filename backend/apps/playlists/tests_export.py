@@ -88,6 +88,66 @@ class SpotifyExportServiceTests(TestCase):
             ["spotify-track-1"],
         )
         self.assertEqual(result["tracks_added"], 1)
+        self.assertEqual(result["tracks_skipped_without_spotify_id"], 1)
+
+    @patch("apps.playlists.domain.spotify_export_service.SpotifyClient")
+    def test_export_skips_duplicate_spotify_track_ids(self, mock_client_cls):
+        duplicate_track = Track.objects.create(
+            title="Track Duplicate",
+            artist="Artist One",
+            spotify_id="spotify-track-1",
+            unique_key="track-duplicate-artist-one",
+        )
+        PlaylistItem.objects.create(
+            playlist=self.playlist,
+            track=duplicate_track,
+            position=2,
+        )
+
+        mock_client = mock_client_cls.return_value
+        mock_client.create_playlist.return_value = {"id": "spotify-playlist-deduped"}
+
+        result = SpotifyExportService.export(
+            playlist_id=self.playlist.id,
+            access_token="token",
+        )
+
+        mock_client.add_tracks_to_playlist.assert_called_once_with(
+            "spotify-playlist-deduped",
+            ["spotify-track-1"],
+        )
+        self.assertEqual(result["tracks_added"], 1)
+        self.assertEqual(result["duplicates_skipped"], 1)
+
+    @patch("apps.playlists.domain.spotify_export_service.SpotifyClient")
+    def test_export_chunks_large_track_lists(self, mock_client_cls):
+        for index in range(2, 106):
+            track = Track.objects.create(
+                title=f"Track {index}",
+                artist="Artist",
+                spotify_id=f"spotify-track-{index}",
+                unique_key=f"track-{index}-artist",
+            )
+            PlaylistItem.objects.create(
+                playlist=self.playlist,
+                track=track,
+                position=index,
+            )
+
+        mock_client = mock_client_cls.return_value
+        mock_client.create_playlist.return_value = {"id": "spotify-playlist-big"}
+
+        result = SpotifyExportService.export(
+            playlist_id=self.playlist.id,
+            access_token="token",
+        )
+
+        self.assertEqual(mock_client.add_tracks_to_playlist.call_count, 2)
+        first_call = mock_client.add_tracks_to_playlist.call_args_list[0]
+        second_call = mock_client.add_tracks_to_playlist.call_args_list[1]
+        self.assertEqual(len(first_call.args[1]), 100)
+        self.assertEqual(len(second_call.args[1]), 5)
+        self.assertEqual(result["tracks_added"], 105)
 
 
 class TrackServiceLookupTests(TestCase):

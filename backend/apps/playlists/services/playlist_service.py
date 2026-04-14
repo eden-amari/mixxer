@@ -1,4 +1,5 @@
 from apps.playlists.models import Playlist, PlaylistItem
+from apps.tracks.services.background_enrichment_service import BackgroundEnrichmentService
 
 
 class PlaylistService:
@@ -49,32 +50,56 @@ class PlaylistService:
         playlist.delete()
 
     @staticmethod
-    def get_playlist_with_items(playlist_id, user):
+    def get_playlist_with_items(playlist_id, user, queue_missing_enrichment=True):
         playlist = PlaylistService.get_playlist(playlist_id, user)
 
         items = PlaylistItem.objects.filter(
             playlist=playlist
         ).select_related("track").order_by("position")
 
+        missing_track_ids = []
+        enriched_count = 0
+        enrichable_count = 0
+
+        serialized_items = []
+        for item in items:
+            track = item.track
+            if track and track.spotify_id:
+                enrichable_count += 1
+                if track.is_enriched:
+                    enriched_count += 1
+                else:
+                    missing_track_ids.append(track.id)
+
+            serialized_items.append(
+                {
+                    "id": item.id,
+                    "position": item.position,
+                    "track": {
+                        "id": track.id if track else None,
+                        "title": track.title if track else None,
+                        "bpm": track.bpm if track else None,
+                        "energy": track.energy if track else None,
+                        "valence": track.valence if track else None,
+                    }
+                }
+            )
+
+        if queue_missing_enrichment and missing_track_ids:
+            BackgroundEnrichmentService.enqueue_tracks(missing_track_ids)
+
         return {
             "id": playlist.id,
             "title": playlist.title,
             "description": playlist.description,
             "is_public": playlist.is_public,
-            "items": [
-                {
-                    "id": item.id,
-                    "position": item.position,
-                    "track": {
-                        "id": item.track.id if item.track else None,
-                        "title": item.track.title if item.track else None,
-                        "bpm": item.track.bpm if item.track else None,
-                        "energy": item.track.energy if item.track else None,
-                        "valence": item.track.valence if item.track else None,
-                    }
-                }
-                for item in items
-            ]
+            "items": serialized_items,
+            "enrichment": {
+                "enrichable_tracks": enrichable_count,
+                "enriched_tracks": enriched_count,
+                "pending_tracks": max(enrichable_count - enriched_count, 0),
+                "status": "complete" if enrichable_count == 0 or enriched_count == enrichable_count else "in_progress",
+            },
         }
 
     @staticmethod

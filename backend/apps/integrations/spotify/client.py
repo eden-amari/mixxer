@@ -50,7 +50,34 @@ class SpotifyClient:
         if res.status_code in [200, 201]:
             return res.json()
 
-        raise Exception(f"{res.status_code}: {res.text}")
+        if res.status_code in [401, 403]:
+            raise PermissionError(self._format_error_message(res))
+
+        raise Exception(self._format_error_message(res))
+
+    def _paginate(self, endpoint: str, params=None) -> List[Dict]:
+        items: List[Dict] = []
+        next_url = f"{self.BASE_URL}{endpoint}"
+        next_params = params
+
+        while next_url:
+            res = requests.get(
+                next_url,
+                headers=self._headers(),
+                params=next_params,
+            )
+            next_params = None
+
+            if res.status_code != 200:
+                if res.status_code in [401, 403]:
+                    raise PermissionError(self._format_error_message(res))
+                raise Exception(self._format_error_message(res))
+
+            payload = res.json()
+            items.extend(payload.get("items", []))
+            next_url = payload.get("next")
+
+        return items
 
     # --------------------------------------------------
     # USER
@@ -70,8 +97,7 @@ class SpotifyClient:
         """
         Fetch all playlists for current user
         """
-        data = self._request("GET", "/me/playlists")
-        return data.get("items", [])
+        return self._paginate("/me/playlists", params={"limit": 50})
 
     def get_playlist_items(self, playlist_id: str) -> List[Dict]:
         """
@@ -80,8 +106,10 @@ class SpotifyClient:
         Uses NON-DEPRECATED endpoint:
         GET /playlists/{id}/items
         """
-        data = self._request("GET", f"/playlists/{playlist_id}/items")
-        return data.get("items", [])
+        return self._paginate(
+            f"/playlists/{playlist_id}/items",
+            params={"limit": 100},
+        )
 
     # --------------------------------------------------
     # TRACKS
@@ -102,17 +130,11 @@ class SpotifyClient:
         Create a new playlist for current user
 
         Endpoint:
-        POST /users/{user_id}/playlists
+        POST /me/playlists
         """
-        current_user = self.get_current_user()
-        user_id = current_user.get("id")
-
-        if not user_id:
-            raise ValueError("Spotify user id not available")
-
         return self._request(
             "POST",
-            f"/users/{user_id}/playlists",
+            "/me/playlists",
             json={
                 "name": name,
                 "description": description,
@@ -134,6 +156,36 @@ class SpotifyClient:
             f"/playlists/{playlist_id}/items",
             json={"uris": uris}
         )
+
+    @staticmethod
+    def _format_error_message(response: requests.Response) -> str:
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = None
+
+        spotify_error = payload.get("error") if isinstance(payload, dict) else None
+        spotify_message = (
+            spotify_error.get("message")
+            if isinstance(spotify_error, dict)
+            else None
+        )
+
+        if response.status_code == 401:
+            return "Spotify authorization expired. Reconnect Spotify and try again."
+
+        if response.status_code == 403:
+            if spotify_message and "forbidden" not in spotify_message.lower():
+                return (
+                    "Spotify denied playlist write access: "
+                    f"{spotify_message}. Reconnect Spotify and try again."
+                )
+            return "Spotify denied playlist write access. Reconnect Spotify and try again."
+
+        if spotify_message:
+            return f"{response.status_code}: {spotify_message}"
+
+        return f"{response.status_code}: {response.text}"
     
 
 # --------------------------------------------------

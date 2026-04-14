@@ -8,6 +8,20 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
+class AudioFeatureServiceError(Exception):
+    pass
+
+
+class AudioFeatureRateLimitError(AudioFeatureServiceError):
+    def __init__(self, retry_after: Optional[float] = None):
+        super().__init__("Audio feature API rate limited")
+        self.retry_after = retry_after
+
+
+class AudioFeatureTemporaryError(AudioFeatureServiceError):
+    pass
+
+
 class AudioFeatureService:
     """
     Fetch audio features using SoundNet (RapidAPI Track Analysis API).
@@ -24,7 +38,8 @@ class AudioFeatureService:
         "x-rapidapi-host": "track-analysis.p.rapidapi.com"
     }
 
-    TIMEOUT = 12  # ✅ increased timeout
+    TIMEOUT = 5
+    SESSION = requests.Session()
 
     # ==================================================
     # PUBLIC ENTRY
@@ -61,48 +76,10 @@ class AudioFeatureService:
     @classmethod
     def _fetch_by_spotify_id(cls, external_id: str) -> Optional[Dict]:
         url = f"{cls.BASE_URL}/pktx/spotify/{external_id}"
-
-        for attempt in range(2):  # ✅ retry loop
-            try:
-                response = requests.get(
-                    url,
-                    headers=cls.HEADERS,
-                    timeout=cls.TIMEOUT
-                )
-
-                if response.status_code == 200:
-                    return cls._normalize_response(response.json())
-
-                logger.warning(
-                    "Audio feature API returned status %s for spotify_id=%s",
-                    response.status_code,
-                    external_id,
-                )
-
-                if response.status_code == 429:
-                    time.sleep(3 + attempt * 2)  # backoff
-                    continue
-
-                return None
-
-            except requests.exceptions.Timeout:
-                logger.warning(
-                    "Audio feature API timed out for spotify_id=%s on attempt %s",
-                    external_id,
-                    attempt + 1,
-                )
-                time.sleep(2)
-                continue
-
-            except Exception as e:
-                logger.exception(
-                    "Audio feature API request failed for spotify_id=%s: %s",
-                    external_id,
-                    e,
-                )
-                return None
-
-        return None
+        response = cls._request(url, context=f"spotify_id={external_id}")
+        if response is None:
+            return None
+        return cls._normalize_response(response)
 
     @classmethod
     def _fetch_by_query(cls, title: str, artist: str = None) -> Optional[Dict]:
@@ -112,47 +89,51 @@ class AudioFeatureService:
         if artist:
             params["artist"] = artist
 
-        for attempt in range(2):  # ✅ retry loop
-            try:
-                response = requests.get(
-                    url,
-                    headers=cls.HEADERS,
-                    params=params,
-                    timeout=cls.TIMEOUT
-                )
+        response = cls._request(url, params=params, context=f"title='{title}'")
+        if response is None:
+            return None
+        return cls._normalize_response(response)
 
-                if response.status_code == 200:
-                    return cls._normalize_response(response.json())
+    @classmethod
+    def _request(cls, url: str, params=None, context: str = "") -> Optional[Dict]:
+        try:
+            response = cls.SESSION.get(
+                url,
+                headers=cls.HEADERS,
+                params=params,
+                timeout=cls.TIMEOUT,
+            )
+        except requests.exceptions.Timeout as exc:
+            logger.warning("Audio feature API timed out for %s", context)
+            raise AudioFeatureTemporaryError("timeout") from exc
+        except requests.RequestException as exc:
+            logger.warning("Audio feature API request failed for %s: %s", context, exc)
+            raise AudioFeatureTemporaryError("request_failed") from exc
 
-                logger.warning(
-                    "Audio feature fallback API returned status %s for title='%s'",
-                    response.status_code,
-                    title,
-                )
+        if response.status_code == 200:
+            return response.json()
 
-                if response.status_code == 429:
-                    time.sleep(3 + attempt * 2)
-                    continue
+        if response.status_code == 404:
+            return None
 
-                return None
+        if response.status_code == 429:
+            retry_after = cls._safe_retry_after(response.headers.get("Retry-After"))
+            logger.warning("Audio feature API returned status 429 for %s", context)
+            raise AudioFeatureRateLimitError(retry_after=retry_after)
 
-            except requests.exceptions.Timeout:
-                logger.warning(
-                    "Audio feature fallback API timed out for title='%s' on attempt %s",
-                    title,
-                    attempt + 1,
-                )
-                time.sleep(2)
-                continue
+        if response.status_code >= 500:
+            logger.warning(
+                "Audio feature API returned temporary status %s for %s",
+                response.status_code,
+                context,
+            )
+            raise AudioFeatureTemporaryError(f"status_{response.status_code}")
 
-            except Exception as e:
-                logger.exception(
-                    "Audio feature fallback request failed for title='%s': %s",
-                    title,
-                    e,
-                )
-                return None
-
+        logger.warning(
+            "Audio feature API returned status %s for %s",
+            response.status_code,
+            context,
+        )
         return None
 
     # ==================================================
@@ -227,4 +208,11 @@ class AudioFeatureService:
             return value
 
         except:
+            return None
+
+    @staticmethod
+    def _safe_retry_after(value) -> Optional[float]:
+        try:
+            return float(value) if value is not None else None
+        except (TypeError, ValueError):
             return None

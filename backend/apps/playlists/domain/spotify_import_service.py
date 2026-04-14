@@ -2,9 +2,9 @@ from typing import Dict, List
 from django.db import transaction
 
 from apps.integrations.spotify.client import SpotifyClient
+from apps.tracks.services.background_enrichment_service import BackgroundEnrichmentService
 from apps.tracks.services.enrichment_service import EnrichmentService
 from apps.tracks.services.track_services import TrackService
-from apps.tracks.services.resolver import TrackResolver
 
 from apps.playlists.services.playlist_service import PlaylistService
 from apps.playlists.services.playlist_item_service import PlaylistItemService
@@ -26,6 +26,7 @@ class SpotifyImportService:
     @staticmethod
     @transaction.atomic
     def import_playlist(user, playlist_id: str, access_token: str) -> Dict:
+        EnrichmentService.start_run()
 
         client = SpotifyClient(access_token)
 
@@ -50,8 +51,10 @@ class SpotifyImportService:
             "success": 0,
             "duplicates": 0,
             "failed": 0,
-            "errors": []
+            "errors": [],
+            "queued_for_enrichment": 0,
         }
+        track_ids_to_enrich: list[int] = []
 
         # --------------------
         # PROCESS TRACKS
@@ -77,43 +80,44 @@ class SpotifyImportService:
                     "genre": "unknown",
                 }
 
+                spotify_id = data.get("spotify_id")
+                title = data.get("title")
+                artist = data.get("artist")
+                track_obj = None
+
+                if spotify_id:
+                    track_obj = TrackService.get_by_spotify_id(spotify_id)
+
+                if not track_obj and title and artist:
+                    from apps.imports.domain.utils import generate_track_key
+
+                    unique_key = generate_track_key({"title": title, "artist": artist})
+                    track_obj = TrackService.get_by_unique_key(unique_key)
+
+                if track_obj and track_obj.is_enriched:
+                    stats["duplicates"] += 1
+                    PlaylistItemService.add_song_to_playlist(
+                        playlist_id=playlist.id,
+                        track_id=track_obj.id,
+                        user=user,
+                        position=index + 1
+                    )
+                    continue
+
                 # --------------------
                 # RESOLVE (optional)
                 # --------------------
-                try:
-                    resolved = TrackResolver.resolve(data, access_token) or data
-                except Exception:
-                    resolved = data
+                resolved = data
 
                 # --------------------
                 # ENRICH
                 # --------------------
-                try:
-                    enriched = EnrichmentService.enrich(resolved, access_token) or resolved
-                except Exception:
-                    enriched = resolved
-
-                # --------------------
-                # STORE (dedup-safe)
-                # --------------------
-                spotify_id = enriched.get("spotify_id")
-                title = enriched.get("title")
-                artist = enriched.get("artist")
-                
-                track_obj = None
-                
-                # Try to find existing track by spotify_id
-                if spotify_id:
-                    track_obj = TrackService.get_by_spotify_id(spotify_id)
-                
-                # If not found by spotify_id, try by unique_key
-                if not track_obj and title and artist:
-                    from apps.imports.domain.utils import generate_track_key
-                    unique_key = generate_track_key({"title": title, "artist": artist})
+                enriched = resolved
+                if EnrichmentService.should_attempt_enrichment(resolved.get("spotify_id")):
                     try:
-                        track_obj = TrackService.get_by_unique_key(unique_key)
-                    except:
-                        pass
+                        enriched = EnrichmentService.enrich(resolved, access_token) or resolved
+                    except Exception:
+                        enriched = resolved
 
                 if track_obj:
                     # Track exists — check if enriched
@@ -133,6 +137,9 @@ class SpotifyImportService:
                     else:
                         stats["duplicates"] += 1
 
+                if track_obj and not track_obj.is_enriched:
+                    track_ids_to_enrich.append(track_obj.id)
+
                 # --------------------
                 # ATTACH
                 # --------------------
@@ -147,7 +154,17 @@ class SpotifyImportService:
                 stats["failed"] += 1
                 stats["errors"].append(str(e))
 
-        return stats
+        unique_track_ids_to_enrich = list(dict.fromkeys(track_ids_to_enrich))
+        stats["queued_for_enrichment"] = len(unique_track_ids_to_enrich)
+        transaction.on_commit(
+            lambda: BackgroundEnrichmentService.enqueue_tracks(unique_track_ids_to_enrich)
+        )
+
+        return {
+            "playlist_id": playlist.id,
+            "playlist_title": playlist.title,
+            **stats,
+        }
 
     # --------------------------------------------------
     # OPTIONAL: Import ALL playlists

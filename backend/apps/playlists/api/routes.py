@@ -63,6 +63,14 @@ def extract_spotify_track(item):
     return item.get("track") or item.get("item")
 
 
+def extract_spotify_image(track):
+    album = track.get("album") or {}
+    images = album.get("images") or []
+    if not images:
+        return None
+    return images[0].get("url")
+
+
 # =========================
 # SCHEMAS
 # =========================
@@ -381,7 +389,7 @@ def get_spotify_playlist_tracks(request: HttpRequest, playlist_id: str):
                 "artist": track.get("artists", [{}])[0].get("name"),
                 "spotify_id": track.get("id"),
                 "album": track.get("album", {}).get("name"),
-                "image": track.get("album", {}).get("images", [{}])[0].get("url"),
+                "image": extract_spotify_image(track),
             })
 
         return success(data[:25])

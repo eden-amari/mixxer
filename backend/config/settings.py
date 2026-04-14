@@ -23,7 +23,19 @@ load_dotenv(BASE_DIR / ".env")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+AUDIO_FEATURE_RATE_LIMIT_PER_SEC = float(os.getenv("AUDIO_FEATURE_RATE_LIMIT_PER_SEC", "1.0"))
+AUDIO_FEATURE_SKIP_TTL_SECONDS = int(os.getenv("AUDIO_FEATURE_SKIP_TTL_SECONDS", "900"))
+AUDIO_FEATURE_COOLDOWN_SECONDS = int(os.getenv("AUDIO_FEATURE_COOLDOWN_SECONDS", "8"))
+AUDIO_FEATURE_IMPORT_BUDGET = int(os.getenv("AUDIO_FEATURE_IMPORT_BUDGET", "20"))
+
+
+def _split_env_list(value: str | None, default: list[str]) -> list[str]:
+    if not value:
+        return default
+
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 ACCOUNT_ADAPTER = "apps.users.adapters.CustomAccountAdapter"
 
@@ -34,7 +46,14 @@ ACCOUNT_ADAPTER = "apps.users.adapters.CustomAccountAdapter"
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "backend"]
+ALLOWED_HOSTS = _split_env_list(
+    os.getenv("ALLOWED_HOSTS"),
+    ["localhost", "127.0.0.1", "0.0.0.0", "backend", "host.docker.internal"],
+)
+CSRF_TRUSTED_ORIGINS = _split_env_list(
+    os.getenv("CSRF_TRUSTED_ORIGINS"),
+    ["http://localhost:3000", "http://127.0.0.1:3000"],
+)
 
 
 # Application definition
@@ -202,4 +221,3 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*", "username*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 AUTH_USER_MODEL = "users.User"
-
