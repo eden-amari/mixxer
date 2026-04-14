@@ -26,11 +26,24 @@ class SpotifyExportService:
         # ----------------------------------------
         # 2. Extract Spotify IDs
         # ----------------------------------------
-        track_ids = [
-            item.track.spotify_id
-            for item in items
-            if item.track and item.track.spotify_id
-        ]
+        track_ids = []
+        duplicate_count = 0
+        missing_spotify_id_count = 0
+        seen_track_ids = set()
+
+        for item in items:
+            spotify_id = item.track.spotify_id if item.track else None
+
+            if not spotify_id:
+                missing_spotify_id_count += 1
+                continue
+
+            if spotify_id in seen_track_ids:
+                duplicate_count += 1
+                continue
+
+            seen_track_ids.add(spotify_id)
+            track_ids.append(spotify_id)
 
         if not track_ids:
             raise ValueError("No Spotify tracks available")
@@ -38,7 +51,9 @@ class SpotifyExportService:
         # ----------------------------------------
         # 3. Create Spotify playlist
         # ----------------------------------------
-        playlist_name = name or "Organized Playlist"
+        playlist_name = (name or local_playlist.title or "Organized Playlist").strip()
+        if not playlist_name:
+            playlist_name = "Organized Playlist"
 
         spotify_playlist = client.create_playlist(
             name=playlist_name,
@@ -53,12 +68,20 @@ class SpotifyExportService:
         # ----------------------------------------
         # 4. Add tracks
         # ----------------------------------------
-        client.add_tracks_to_playlist(
-            spotify_playlist_id,
-            track_ids
-        )
+        for chunk in SpotifyExportService._chunk_track_ids(track_ids):
+            client.add_tracks_to_playlist(
+                spotify_playlist_id,
+                chunk
+            )
 
         return {
             "spotify_playlist_id": spotify_playlist_id,
-            "tracks_added": len(track_ids)
+            "tracks_added": len(track_ids),
+            "duplicates_skipped": duplicate_count,
+            "tracks_skipped_without_spotify_id": missing_spotify_id_count,
         }
+
+    @staticmethod
+    def _chunk_track_ids(track_ids, chunk_size: int = 100):
+        for index in range(0, len(track_ids), chunk_size):
+            yield track_ids[index:index + chunk_size]

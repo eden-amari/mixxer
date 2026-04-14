@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 from django.db import transaction
 
+from apps.tracks.services.background_enrichment_service import BackgroundEnrichmentService
 from apps.tracks.services.enrichment_service import EnrichmentService
 from apps.tracks.services.track_services import TrackService
 from apps.tracks.services.resolver import TrackResolver
@@ -30,7 +31,8 @@ class ImportService:
         access_token: str,
         user,
         playlist_id: int = None,
-        batch_size: int = 50
+        batch_size: int = 50,
+        use_spotify_enrichment: bool = False,
     ) -> Dict:
 
         if file_type not in cls.SUPPORTED_TYPES:
@@ -48,7 +50,13 @@ class ImportService:
                 description="Created from file import"
             )
 
-        result = cls._run_pipeline(parser, access_token, playlist, batch_size)
+        result = cls._run_pipeline(
+            parser,
+            access_token if use_spotify_enrichment else None,
+            playlist,
+            batch_size,
+            use_spotify_enrichment=use_spotify_enrichment,
+        )
 
         return {
             "playlist_id": playlist.id,
@@ -60,10 +68,19 @@ class ImportService:
     # =========================================================
     @classmethod
     @transaction.atomic
-    def _run_pipeline(cls, parser, access_token: str, playlist, batch_size: int):
+    def _run_pipeline(
+        cls,
+        parser,
+        access_token: str,
+        playlist,
+        batch_size: int,
+        use_spotify_enrichment: bool,
+    ):
+        EnrichmentService.start_run()
 
         total, success, failed, duplicates = 0, 0, 0, 0
         errors: List[Dict] = []
+        queued_track_ids: List[int] = []
 
         buffer: List[Tuple[int, Dict]] = []
 
@@ -87,11 +104,17 @@ class ImportService:
                 buffer.append((idx, normalized))
 
                 if len(buffer) >= batch_size:
-                    s, f, d, e = cls._process_batch(buffer, access_token, playlist)
+                    s, f, d, e, queued = cls._process_batch(
+                        buffer,
+                        access_token,
+                        playlist,
+                        use_spotify_enrichment=use_spotify_enrichment,
+                    )
                     success += s
                     failed += f
                     duplicates += d
                     errors.extend(e)
+                    queued_track_ids.extend(queued)
                     buffer.clear()
 
             except Exception as e:
@@ -99,17 +122,29 @@ class ImportService:
                 errors.append(cls._error(idx, "unexpected_error", str(e)))
 
         if buffer:
-            s, f, d, e = cls._process_batch(buffer, access_token, playlist)
+            s, f, d, e, queued = cls._process_batch(
+                buffer,
+                access_token,
+                playlist,
+                use_spotify_enrichment=use_spotify_enrichment,
+            )
             success += s
             failed += f
             duplicates += d
             errors.extend(e)
+            queued_track_ids.extend(queued)
+
+        unique_track_ids = list(dict.fromkeys(queued_track_ids))
+        transaction.on_commit(
+            lambda: BackgroundEnrichmentService.enqueue_tracks(unique_track_ids)
+        )
 
         return {
             "total": total,
             "success": success,
             "failed": failed,
             "duplicates": duplicates,
+            "queued_for_enrichment": len(unique_track_ids),
             "errors": errors[:50],
         }
 
@@ -117,7 +152,7 @@ class ImportService:
     # 🔥 BATCH PROCESSING + PLAYLIST ATTACH
     # =========================================================
     @classmethod
-    def _process_batch(cls, batch, access_token, playlist):
+    def _process_batch(cls, batch, access_token, playlist, use_spotify_enrichment: bool):
         """
         Process a batch of tracks with duplicate detection and enrichment logic.
         - Skip if track exists AND is fully enriched
@@ -126,6 +161,7 @@ class ImportService:
         """
         success, failed, duplicates = 0, 0, 0
         errors: List[Dict] = []
+        queued_track_ids: List[int] = []
 
         # 🔥 IMPORTANT: handle existing playlist size
         existing_count = PlaylistItemService.get_playlist_length(playlist.id)
@@ -135,10 +171,12 @@ class ImportService:
                 # --------------------
                 # RESOLVE
                 # --------------------
-                try:
-                    resolved = TrackResolver.resolve(data, access_token) or data
-                except Exception:
-                    resolved = data
+                resolved = data
+                if use_spotify_enrichment and access_token:
+                    try:
+                        resolved = TrackResolver.resolve(data, access_token) or data
+                    except Exception:
+                        resolved = data
 
                 spotify_id = resolved.get("spotify_id")
                 title = resolved.get("title")
@@ -169,12 +207,20 @@ class ImportService:
                         duplicates += 1
                     else:
                         # ⚡ Exists but incomplete — fill in missing fields only
-                        enriched = cls._maybe_enrich(resolved, access_token)
+                        enriched = cls._maybe_enrich(
+                            resolved,
+                            access_token,
+                            use_spotify_enrichment=use_spotify_enrichment,
+                        )
                         TrackService._update_enrichment(track_obj, enriched)
                         success += 1
                 else:
                     # Brand new track — create safely
-                    enriched = cls._maybe_enrich(resolved, access_token)
+                    enriched = cls._maybe_enrich(
+                        resolved,
+                        access_token,
+                        use_spotify_enrichment=use_spotify_enrichment,
+                    )
                     track_obj, created = TrackService.create_safe(enriched)
 
                     if created:
@@ -190,18 +236,26 @@ class ImportService:
                     position=existing_count + i + 1  # 🔥 IMPORTANT (1-based index)
                 )
 
+                if track_obj and track_obj.spotify_id and not track_obj.is_enriched:
+                    queued_track_ids.append(track_obj.id)
+
             except Exception as e:
                 failed += 1
                 errors.append(cls._error(row_index, "processing_error", str(e)))
 
-        return success, failed, duplicates, errors
+        return success, failed, duplicates, errors, queued_track_ids
 
     # =========================================================
     # HELPERS
     # =========================================================
     @staticmethod
-    def _maybe_enrich(data, access_token):
-        if not (data.get("bpm") and data.get("energy")):
+    def _maybe_enrich(data, access_token, use_spotify_enrichment: bool):
+        if not use_spotify_enrichment or not access_token:
+            return data
+
+        if not (data.get("bpm") and data.get("energy")) and EnrichmentService.should_attempt_enrichment(
+            data.get("spotify_id")
+        ):
             try:
                 return EnrichmentService.enrich(data, access_token) or data
             except Exception:

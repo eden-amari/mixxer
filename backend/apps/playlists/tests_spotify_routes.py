@@ -73,6 +73,56 @@ class SpotifyPlaylistRouteTests(TestCase):
         self.assertTrue(payload["success"])
         self.assertEqual(payload["data"][0]["spotify_id"], "spotify-track-b")
 
+    @patch("apps.playlists.api.routes.SpotifyClient")
+    def test_get_spotify_playlist_tracks_handles_empty_album_images(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_playlist_items.return_value = [
+            {
+                "track": {
+                    "name": "Song C",
+                    "id": "spotify-track-c",
+                    "artists": [{"name": "Artist C"}],
+                    "album": {
+                        "name": "Album C",
+                        "images": [],
+                    },
+                }
+            }
+        ]
+
+        response = self.client.get("/api/playlists/spotify/playlists/playlist-empty-images")
+        payload = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(payload["success"])
+        self.assertIsNone(payload["data"][0]["image"])
+
+    @patch("apps.playlists.api.routes.SpotifyImportService.import_playlist")
+    def test_import_spotify_returns_created_playlist_id(self, mock_import_playlist):
+        mock_import_playlist.return_value = {
+            "playlist_id": 99,
+            "playlist_title": "Imported Spotify Playlist",
+            "total": 12,
+            "success": 10,
+            "duplicates": 2,
+            "failed": 0,
+            "errors": [],
+            "queued_for_enrichment": 4,
+        }
+
+        response = self.client.post(
+            "/api/playlists/spotify/import",
+            {"playlist_id": "playlist-xyz"},
+            format="json",
+        )
+        payload = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(payload["success"])
+        self.assertEqual(payload["data"]["playlist_id"], 99)
+        self.assertEqual(payload["data"]["success"], 10)
+        self.assertEqual(payload["data"]["queued_for_enrichment"], 4)
+
 
 class PlaylistApiStatusTests(TestCase):
     def setUp(self):

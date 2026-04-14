@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.test import SimpleTestCase
 
@@ -29,3 +29,46 @@ class SpotifyClientTests(SimpleTestCase):
             },
         )
         self.assertEqual(result["id"], "playlist-123")
+
+    @patch("apps.integrations.spotify.client.requests.get")
+    def test_get_user_playlists_paginates_all_results(self, mock_get):
+        first = Mock(status_code=200)
+        first.json.return_value = {
+            "items": [{"id": "playlist-1"}],
+            "next": "https://api.spotify.com/v1/me/playlists?offset=1",
+        }
+        second = Mock(status_code=200)
+        second.json.return_value = {
+            "items": [{"id": "playlist-2"}],
+            "next": None,
+        }
+        mock_get.side_effect = [first, second]
+
+        client = SpotifyClient("token")
+        result = client.get_user_playlists()
+
+        self.assertEqual(result, [{"id": "playlist-1"}, {"id": "playlist-2"}])
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("apps.integrations.spotify.client.requests.get")
+    def test_get_playlist_items_paginates_all_results(self, mock_get):
+        first = Mock(status_code=200)
+        first.json.return_value = {
+            "items": [{"track": {"id": "track-1"}}],
+            "next": "https://api.spotify.com/v1/playlists/pl-1/items?offset=1",
+        }
+        second = Mock(status_code=200)
+        second.json.return_value = {
+            "items": [{"track": {"id": "track-2"}}],
+            "next": None,
+        }
+        mock_get.side_effect = [first, second]
+
+        client = SpotifyClient("token")
+        result = client.get_playlist_items("pl-1")
+
+        self.assertEqual(
+            result,
+            [{"track": {"id": "track-1"}}, {"track": {"id": "track-2"}}],
+        )
+        self.assertEqual(mock_get.call_count, 2)

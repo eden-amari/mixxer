@@ -55,11 +55,16 @@ def failure(e, status_code=None):
 # =========================
 
 @router.post("/csv", auth=JWTAuth())  # ✅ apply per-route auth
-def import_csv(request, file: UploadedFile = File(...), playlist_id: int = None):
+def import_csv(
+    request,
+    file: UploadedFile = File(...),
+    playlist_id: int = None,
+    use_spotify_enrichment: bool = False,
+):
     try:
         user = request.auth  # ✅ FIX: use request.auth
 
-        spotify_token = get_spotify_token(request)
+        spotify_token = get_spotify_token(request, required=use_spotify_enrichment)
 
         result = ImportService.import_file(
             file=file.file,
@@ -67,6 +72,7 @@ def import_csv(request, file: UploadedFile = File(...), playlist_id: int = None)
             access_token=spotify_token,
             user=user,
             playlist_id=playlist_id,
+            use_spotify_enrichment=use_spotify_enrichment,
         )
 
         return success(result)
@@ -80,11 +86,16 @@ def import_csv(request, file: UploadedFile = File(...), playlist_id: int = None)
 # =========================
 
 @router.post("/json", auth=JWTAuth())  # ✅ apply per-route auth
-def import_json(request, file: UploadedFile = File(...), playlist_id: int = None):
+def import_json(
+    request,
+    file: UploadedFile = File(...),
+    playlist_id: int = None,
+    use_spotify_enrichment: bool = False,
+):
     try:
         user = request.auth  # ✅ FIX
 
-        spotify_token = get_spotify_token(request)
+        spotify_token = get_spotify_token(request, required=use_spotify_enrichment)
 
         result = ImportService.import_file(
             file=file.file,
@@ -92,6 +103,7 @@ def import_json(request, file: UploadedFile = File(...), playlist_id: int = None
             access_token=spotify_token,
             user=user,
             playlist_id=playlist_id,
+            use_spotify_enrichment=use_spotify_enrichment,
         )
 
         return success(result)
